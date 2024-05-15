@@ -1,0 +1,365 @@
+openapi: 3.0.2
+info:
+  version: '1.0.0'
+
+  title: Resource-provisioning OpenAPI
+
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  x-logo:
+    url: 'https://redocly.github.io/openapi-template/logo.png'
+
+tags:
+  - name: Endpoints
+  
+paths:
+  ############################ Enablers management API'S #################################################
+  /v1/enablers:
+    post:
+      tags:
+        - Enablers management
+      summary: Update managed enablers and components
+      description: Update `enablers` or `components` for each enabler to do the inference
+      operationId: postEnablers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Enablers'
+            example:
+              enablers:
+                - name: resource-provisioning
+                  managed: true
+                  components:
+                    - name: api
+                      managed: true
+                    - name: im
+                      managed: true
+                    - name: prc
+                      managed: false
+                    - name: tm
+                      managed: false
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Enablers managed updates successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  - Invalid JSON
+                  - Managed enablers/components must be true or false
+        '406':
+          description: Content-Type not supported
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Content-Type not supported!
+        '500':
+          description: Internal error
+          content: {}
+    get:
+          tags:
+            - Enablers management
+          summary: Return managed enablers and components
+          description: |
+            Return `enablers` or `components` for each enabler to do the inference
+          operationId: getEnablers
+          responses: # list of responses
+            '200':
+              description: Success
+              content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/Enablers'
+                  example:
+                        enablers:
+                          - name: resource-provisioning
+                            managed: true
+                            components:
+                              - name: api
+                                managed: true
+                              - name: im
+                                managed: true
+                              - name: prc
+                                managed: false
+                              - name: tm
+                                managed: false
+            '500':
+              description: Internal error
+              content: {}
+
+   ############################ Enablers management API'S #################################################
+  /v1/train-values:
+    post:
+      tags:
+        - Training
+      summary: Update train values
+      description: |
+        Update enabler's train values
+      operationId: postTrainValues
+      requestBody:
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/Train-values'
+            example: 
+              Future_data: "1"
+              History_data: "6"
+        required: true
+      responses: # list of responses
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Train values changed
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  - Invalid JSON
+                  - Values must be positive numbers
+        '406':
+          description: Content-Type not supported
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Content-Type not supported!
+        '500':
+          description: Internal error
+          content: {}
+    get:
+      tags:
+        - Training
+      summary: Return train values
+      description: |
+        Return enabler's train values
+      operationId: getTrainValues
+      responses: # list of responses
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Train-values'
+              example:
+                Future_data: "1"
+                History_data: "6"
+        '500':
+          description: Internal error
+          content: {}
+  /v1/train:
+    get:
+      tags:
+        - Training
+      summary: Execute training
+      description: |
+        Execute training to get predicted data
+      operationId: getTrain
+      responses: # list of responses
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Train module executed successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  - Not components to train
+                  - Insufficient data
+        '500':
+          description: Internal error
+          content: {}
+      
+   ############################ Enablers inference API'S #################################################  
+  /v1/inference:
+    get:
+      tags:
+        - Inference
+      summary: Execute inference
+      description: |
+        Execute inference to apply predicted data
+      operationId: getInference
+      responses: # list of responses
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Infence complete sucessfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  - Error in execution Inference Module
+        '500':
+          description: Internal error
+          content: {}   
+   
+   ############################ Enablers management API'S #################################################
+  /version:
+    get:
+      tags:
+        - Common endpoints
+      summary: Get version
+      description: Get current enabler `version`
+      operationId: getVersion
+      responses: # list of responses
+            '200':
+              description: Success
+              content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/Version'
+                  example:
+                    name: Resource-provisioning
+                    version: "1.0.0"
+            '500':
+              description: Internal error
+              content: {}
+              
+  /v1/health:
+    get:
+      tags:
+        - Common endpoints
+      summary: Get health status
+      description: Returns enabler's health status
+      operationId: getHealth
+      responses: # list of responses
+            '200':
+              description: Success
+              content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/Health'
+                  example:
+                    status: healthy
+            '500':
+              description: Internal error
+              content: {}
+            '503':
+              description: Service unavailable
+              content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/Health'
+                  example:
+                    status: unhealthy
+                    
+  /v1/api-export:
+    get:
+      tags:
+        - Common endpoints
+      summary: Get OpenAPI documentation
+      description: Returns enabler's OpenAPI documentation
+      operationId: getOpenAPI
+      responses: # list of responses
+            '200':
+              description: Success
+              content:
+                application/json:
+                  example:
+                    openapi: 3.0.2
+                    info:
+                      version: '2.0.0'
+                      title: Resource-provisioning OpenAPI
+                      license:
+                        name: Apache 2.0
+                        url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                    ...: ...
+            '500':
+              description: Internal error
+              content: {}
+    
+######################### SCHEMAS ####################################################
+# An object to hold reusable parts that can be used across the definition
+components:
+  schemas:
+    Component:
+      type: object
+      properties:
+        name:
+          description: Component's name
+          type: string
+          maxLength: 128
+        managed:
+          description: Component management status
+          type: boolean
+    Enabler:
+      type: object
+      properties:
+        name:
+          description: Enabler's name
+          type: string
+          maxLength: 128
+        managed:
+          description: Enabler management status
+          type: boolean
+        components:
+          description: Array of each enabler's component
+          type: array
+          items:
+            $ref: '#/components/schemas/Component'
+    Enablers:
+      type: object
+      properties:
+        enablers:
+          description: Array of each enabler available to infer in cluster
+          type: array
+          items:
+            $ref: '#/components/schemas/Enabler'
+    Version:
+      type: object
+      properties:
+        enabler:
+          description: Enabler's name
+          type: string
+          maxLength: 128
+        version:
+          description: Current enabler's version
+          type: string
+          maxLength: 128
+    Health:
+      type: object
+      properties:
+        status:
+          description: Returns health status of enabler
+          type: string
+          maxLength: 128
+    Train-values:
+      type: object
+      properties:
+        Future_data:
+          description: Future data (in days) to train
+          type: string
+          maxLength: 128
+        History_data:
+          description: History data (in days) to get data to train
+          type: string
+          maxLength: 128
